@@ -1,10 +1,16 @@
-const express = require('express');
-const request = require('request');
-const app = express();
+from flask import Flask, request, Response
+import requests
 
-app.use('/', (req, res) => {
-    const targetUrl = 'https://huhu.to' + req.url;
-    req.pipe(request(targetUrl)).pipe(res);
-});
+app = Flask(__name__)
 
-app.listen(3000, () => console.log('Proxy server running on port 3000'));
+TARGET_BASE_URL = "https://huhu.to"
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def proxy(path):
+    target_url = f"{TARGET_BASE_URL}/{path}"  # Gelen isteği hedef siteye yönlendir
+    response = requests.get(target_url)  # Hedef siteden içeriği al
+    return Response(response.content, status=response.status_code, headers=dict(response.headers))
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8080)
