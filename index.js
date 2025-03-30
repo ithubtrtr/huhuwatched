@@ -3,7 +3,7 @@ const request = require('request');
 const app = express();
 
 app.use('/', (req, res) => {
-    const targetUrl = 'https://huhu.to/addon.watched' + req.url;
+    const targetUrl = 'https://huhu.to' + req.url;
     req.pipe(request(targetUrl)).pipe(res);
 });
 
