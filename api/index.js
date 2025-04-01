@@ -1,28 +1,26 @@
-import fetch from 'node-fetch';
+import axios from 'axios';
 
 export default async function handler(req, res) {
   try {
-    const url = 'http://oha.to/addon.watched'; // HTTPS yerine HTTP'yi kullan
+    const url = 'https://oha.to/addon.watched'; // HTTPS bağlantısı
+
     const { method, headers } = req;
 
-    // Proxy'den gelen istekte User-Agent'ı kaldırıyoruz
+    // User-Agent'ı kaldırıyoruz
     const headersWithoutUserAgent = { ...headers };
     delete headersWithoutUserAgent['user-agent'];
 
-    // OHA.TO'ya gelen isteği yönlendiriyoruz
-    const response = await fetch(url, {
+    // Axios ile OHA.TO'ya yönlendirme
+    const response = await axios({
       method: method,
+      url: url,
       headers: headersWithoutUserAgent,
+      httpsAgent: new (require('https').Agent)({
+        rejectUnauthorized: false, // Sertifika hatalarını göz ardı etmek
+      }),
     });
 
-    if (!response.ok) {
-      throw new Error('Error with OHA.TO response');
-    }
-
-    const data = await response.text(); // OHA.TO'dan gelen yanıtı alıyoruz
-
-    // OHA.TO'dan alınan yanıtı kullanıcıya gönderiyoruz
-    res.status(response.status).send(data);
+    res.status(response.status).send(response.data); // Yanıtı gönder
   } catch (error) {
     console.error('Error in function:', error);
     res.status(500).send({ error: 'Internal Server Error' });
