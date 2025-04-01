@@ -1,15 +1,28 @@
-from flask import Flask, request, Response
 import requests
+from flask import Flask, Response
+from flask import request
 
 app = Flask(__name__)
 
-TARGET_URL = "https://oha.to/addon.watched"
+# Oha.to API URL
+OHA_URL = 'https://oha.to/addon.watched'
+
 
 @app.route('/addon.watched', methods=['GET'])
-def proxy_request():
-    headers = {key: value for key, value in request.headers if key.lower() != "user-agent"}
-    response = requests.get(TARGET_URL, headers=headers)
-    return Response(response.content, status=response.status_code, content_type=response.headers.get('Content-Type'))
+def proxy():
+    # Gelen isteğin başlıklarını alıyoruz
+    headers = {key: value for key, value in request.headers.items()}
+
+    # User-Agent bilgisini kaldırıyoruz
+    if 'User-Agent' in headers:
+        del headers['User-Agent']
+
+    # Oha.to'ya proxy isteği gönderiyoruz
+    response = requests.get(OHA_URL, headers=headers, params=request.args)
+
+    # Yanıtı Flask'a uygun hale getiriyoruz
+    return Response(response.content, status=response.status_code, content_type=response.headers['Content-Type'])
+
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5000)
