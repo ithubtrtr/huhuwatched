@@ -2,7 +2,7 @@ import fetch from 'node-fetch';
 
 export default async function handler(req, res) {
   try {
-    const url = 'https://oha.to/addon.watched';
+    const url = 'http://oha.to/addon.watched'; // HTTP bağlantısı kullanmak
     const { method, headers } = req;
 
     // User-Agent'ı kaldırıyoruz
@@ -15,11 +15,14 @@ export default async function handler(req, res) {
     });
 
     if (!response.ok) {
-      throw new Error(`Error: ${response.status} - ${response.statusText}`);
+      // Hata mesajını yazdırmak
+      const errorDetails = await response.text();
+      console.error('Error with OHA.TO response:', errorDetails);
+      throw new Error(`Failed to fetch data: ${errorDetails}`);
     }
 
-    const data = await response.json(); // JSON yanıtı alıyoruz
-    res.status(response.status).json(data); // Yanıtı JSON olarak döndürüyoruz
+    const data = await response.text(); // Yanıtı alıyoruz
+    res.status(response.status).send(data); // Yanıtı döndürüyoruz
   } catch (error) {
     console.error('Error in function:', error);
     res.status(500).send({ error: 'Internal Server Error', details: error.message });
