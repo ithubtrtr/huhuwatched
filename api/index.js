@@ -1,10 +1,10 @@
-const fetch = require("node-fetch"); // node-fetch@2 ile uyumlu
+import fetch from "node-fetch"; // ESM uyumlu import
 
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
     try {
         const targetUrl = "https://oha.to/addon.watched";
 
-        // User-Agent olmadan istek yap
+        // User-Agent olmadan isteği yap
         const response = await fetch(targetUrl, {
             method: "GET",
             headers: {
@@ -21,6 +21,6 @@ module.exports = async (req, res) => {
         res.status(response.status).send(data);
     } catch (error) {
         console.error("Hata:", error);
-        res.status(500).send({ error: "Sunucu hatası", details: error.message });
+        res.status(500).json({ error: "Sunucu hatası", details: error.message });
     }
-};
+}
