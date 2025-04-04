@@ -1,5 +1,0 @@
-{
-  "rewrites": [
-    { "source": "/addon.watched", "destination": "/api/addon.watched" }
-  ]
-}
